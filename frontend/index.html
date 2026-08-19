@@ -1,0 +1,316 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أحلى أفلام - مشاهدة أمتع الأفلام</title>
+    <!-- إطار عمل Tailwind CSS للسهولة وسرعة التصميم -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- مكتبة Font Awesome للأيقونات -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- خط عربي (Cairo) -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        /* التنسيقات المخصصة (Custom CSS للتحكم الدقيق في المظهر) */
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #0d0d0d; /* لون خلفية داكن جداً للموقع */
+            color: #ffffff;
+        }
+        .navbar {
+            background-color: #1a1a1a;
+            border-bottom: 2px solid #e50914; /* الخط الأحمر المميز */
+        }
+        .filter-bar {
+            background-color: #161616;
+            border-bottom: 1px solid #2a2a2a;
+        }
+        .movie-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 6px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        .movie-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(229, 9, 20, 0.2); /* تأثير توهج أحمر عند تمرير الماوس */
+        }
+        .movie-poster {
+            width: 100%;
+            height: 280px;
+            object-fit: cover;
+        }
+        .movie-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.95) 10%, transparent);
+            padding: 20px 10px 10px 10px;
+        }
+        .badge-quality {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background-color: #e50914; /* لون الجودة (أحمر) */
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            z-index: 10;
+        }
+        .badge-age {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            z-index: 10;
+        }
+        /* ألوان الفئات العمرية */
+        .age-kids { background-color: #10b981; } /* أخضر للأطفال والعائلي */
+        .age-teen { background-color: #f59e0b; } /* برتقالي للمراهقين +13 */
+        .age-adult { background-color: #dc2626; } /* أحمر للكبار +18 */
+        
+        /* تنسيق القوائم المنسدلة للفلاتر */
+        select {
+            background-color: #262626;
+            color: white;
+            border: 1px solid #333;
+            border-radius: 4px;
+            padding: 6px 10px;
+            font-size: 14px;
+            outline: none;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        select:focus, select:hover {
+            border-color: #e50914;
+        }
+        /* إخفاء شريط التمرير */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f0f0f; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #e50914; }
+    </style>
+</head>
+<body>
+
+    <!-- شريط التنقل (Header) -->
+    <header class="navbar py-4 px-6 sticky top-0 z-50 shadow-lg">
+        <div class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-8">
+                <!-- الشعار -->
+                <a href="#" class="text-3xl font-black text-red-600 tracking-wider">أحلى<span class="text-white">أفلام</span></a>
+                
+                <!-- القائمة الرئيسية -->
+                <nav class="hidden md:flex gap-5 font-semibold text-gray-300 text-sm">
+                    <a href="#" class="text-white border-b-2 border-red-600 pb-1">الرئيسية</a>
+                    <a href="#" class="hover:text-white transition">الأفلام <i class="fa-solid fa-angle-down ml-1 text-xs text-gray-500"></i></a>
+                    <a href="#" class="hover:text-white transition">المسلسلات <i class="fa-solid fa-angle-down ml-1 text-xs text-gray-500"></i></a>
+                    <a href="#" class="hover:text-white transition">الأنمي <i class="fa-solid fa-angle-down ml-1 text-xs text-gray-500"></i></a>
+                    <a href="#" class="hover:text-white transition">المدبلج</a>
+                </nav>
+            </div>
+
+            <!-- شريط البحث -->
+            <div class="relative w-full md:w-80">
+                <input type="text" placeholder="ابحث عن ما تريد..." class="w-full bg-gray-800 text-gray-200 rounded-sm py-2 px-4 pr-10 border border-gray-700 focus:outline-none focus:border-red-600 transition text-sm">
+                <i class="fa-solid fa-search absolute right-3 top-3 text-gray-400"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- شريط الفلاتر المتقدمة (Filters Bar) - حسب الإضافات المطلوبة -->
+    <section class="filter-bar py-3">
+        <div class="container mx-auto px-6 flex flex-wrap gap-2 justify-center lg:justify-start items-center">
+            
+            <select class="w-full sm:w-auto">
+                <option>القسم (أفلام، مسلسلات..)</option>
+                <option>أفلام أجنبي</option>
+                <option>مسلسلات أجنبي</option>
+                <option>أفلام كرتون</option>
+            </select>
+
+            <select class="w-full sm:w-auto">
+                <option>كل الأنواع</option>
+                <option>أكشن</option>
+                <option>إثارة وغموض</option>
+                <option>رعب</option>
+                <option>كوميديا</option>
+                <option>خيال علمي</option>
+            </select>
+
+            <!-- الإضافة الخاصة: البلد المنتجة -->
+            <select class="w-full sm:w-auto border-l-2 border-gray-600">
+                <option>البلد المنتجة</option>
+                <option>أمريكي</option>
+                <option>كوري</option>
+                <option>ياباني</option>
+                <option>مصري</option>
+            </select>
+
+            <!-- الإضافة الخاصة: التصنيف العمري (مستوى الفيلم) -->
+            <select class="w-full sm:w-auto border border-yellow-600">
+                <option>التصنيف العمري</option>
+                <option>لجميع الأعمار (عائلي)</option>
+                <option>مناسب للأطفال</option>
+                <option>+13 (إرشاد عائلي)</option>
+                <option>+18 (للكبار فقط)</option>
+            </select>
+
+            <select class="w-full sm:w-auto">
+                <option>كل السنوات</option>
+                <option>2026</option>
+                <option>2025</option>
+                <option>2024</option>
+            </select>
+
+            <select class="w-full sm:w-auto">
+                <option>كل الجودات</option>
+                <option>BluRay</option>
+                <option>WEB-DL</option>
+                <option>HD</option>
+            </select>
+
+        </div>
+    </section>
+
+    <!-- المحتوى (شبكة العرض) -->
+    <main class="container mx-auto px-6 py-8">
+        
+        <div class="flex justify-between items-center mb-6 border-b border-gray-800 pb-2">
+            <h2 class="text-xl font-bold border-r-4 border-red-600 pr-3">أحدث الإضافات</h2>
+        </div>
+        
+        <!-- Grid (شبكة الأفلام) -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+            
+            <!-- عمل فني 1 (عائلي/أطفال) -->
+            <div class="movie-card bg-gray-900">
+                <div class="badge-quality">WEB-DL</div>
+                <div class="badge-age age-kids">عائلي</div>
+                <img src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="بوستر" class="movie-poster">
+                <div class="movie-overlay text-center">
+                    <h3 class="text-sm font-bold text-white truncate">مغامرات الغابة</h3>
+                    <p class="text-xs text-red-500 mt-1">فيلم انيميشن • 2026</p>
+                </div>
+            </div>
+
+            <!-- عمل فني 2 (+18) -->
+            <div class="movie-card bg-gray-900">
+                <div class="badge-quality">BluRay</div>
+                <div class="badge-age age-adult">+18</div>
+                <img src="https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="بوستر" class="movie-poster">
+                <div class="movie-overlay text-center">
+                    <h3 class="text-sm font-bold text-white truncate">الظلال الداكنة</h3>
+                    <p class="text-xs text-red-500 mt-1">فيلم رعب • 2026</p>
+                </div>
+            </div>
+
+            <!-- عمل فني 3 (+13) -->
+            <div class="movie-card bg-gray-900">
+                <div class="badge-quality">HD</div>
+                <div class="badge-age age-teen">+13</div>
+                <img src="https://images.unsplash.com/photo-1535016120720-40c746a6580c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="بوستر" class="movie-poster">
+                <div class="movie-overlay text-center">
+                    <h3 class="text-sm font-bold text-white truncate">حرب الفضاء</h3>
+                    <p class="text-xs text-red-500 mt-1">مسلسل خيال علمي • أمريكي</p>
+                </div>
+            </div>
+
+            <!-- عمل فني 4 (أطفال) -->
+            <div class="movie-card bg-gray-900">
+                <div class="badge-quality">1080p</div>
+                <div class="badge-age age-kids">للأطفال</div>
+                <img src="https://images.unsplash.com/photo-1585647347384-2593bc35786b?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="بوستر" class="movie-poster">
+                <div class="movie-overlay text-center">
+                    <h3 class="text-sm font-bold text-white truncate">عالم الأبطال</h3>
+                    <p class="text-xs text-red-500 mt-1">فيلم كرتون • مدبلج</p>
+                </div>
+            </div>
+            
+            <!-- عمل فني 5 (+13) -->
+            <div class="movie-card bg-gray-900">
+                <div class="badge-quality">WEB-DL</div>
+                <div class="badge-age age-teen">+13</div>
+                <img src="https://images.unsplash.com/photo-1616530940355-351fabd9524b?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="بوستر" class="movie-poster">
+                <div class="movie-overlay text-center">
+                    <h3 class="text-sm font-bold text-white truncate">الرجل الآلي</h3>
+                    <p class="text-xs text-red-500 mt-1">فيلم أكشن • 2026</p>
+                </div>
+            </div>
+
+            <!-- عمل فني 6 (+18) -->
+            <div class="movie-card bg-gray-900">
+                <div class="badge-quality">BluRay</div>
+                <div class="badge-age age-adult">+18</div>
+                <img src="https://images.unsplash.com/photo-1509347528160-9a9e33742cdb?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="بوستر" class="movie-poster">
+                <div class="movie-overlay text-center">
+                    <h3 class="text-sm font-bold text-white truncate">الهروب الكبير</h3>
+                    <p class="text-xs text-red-500 mt-1">فيلم إثارة • كوري</p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- الفوتر (Footer) -->
+    <footer class="bg-black py-8 mt-12 border-t border-gray-800">
+        <div class="container mx-auto px-6 text-center">
+            <a href="#" class="text-2xl font-black text-red-600 tracking-wider inline-block mb-4">أحلى<span class="text-white">أفلام</span></a>
+            <p class="text-gray-500 text-sm mb-4">موقع أحلى أفلام لمشاهدة وتحميل أحدث الأفلام والمسلسلات الأجنبية والآسيوية والعربية والأنمي بجودات متعددة.</p>
+            <div class="flex justify-center gap-5 text-gray-400">
+                <a href="#" class="hover:text-blue-500 transition"><i class="fa-brands fa-facebook fa-xl"></i></a>
+                <a href="#" class="hover:text-blue-400 transition"><i class="fa-brands fa-twitter fa-xl"></i></a>
+                <a href="#" class="hover:text-blue-500 transition"><i class="fa-brands fa-telegram fa-xl"></i></a>
+            </div>
+            <p class="text-gray-600 text-xs mt-6">جميع الحقوق محفوظة &copy; 2026</p>
+        </div>
+    </footer>
+<script>
+    // دالة لجلب الأفلام من خادم FastAPI
+    async function fetchMovies() {
+        try {
+            const response = await fetch('http://127.0.0.1:8000/api/movies');
+            const movies = await response.json();
+            
+            const movieGrid = document.querySelector('main .grid');
+            movieGrid.innerHTML = ''; // مسح العناصر القديمة
+
+            movies.forEach(movie => {
+                // تحديد لون التصنيف العمري تلقائياً
+                let ageClass = 'age-kids';
+                if (movie.age_rating === '+13') ageClass = 'age-teen';
+                if (movie.age_rating === '+18') ageClass = 'age-adult';
+
+                // بناء كارت الفيلم بالبيانات القادمة من السيرفر
+                movieGrid.innerHTML += `
+                    <div class="movie-card bg-gray-900">
+                        <div class="badge-quality">${movie.quality}</div>
+                        <div class="badge-age ${ageClass}">${movie.age_rating}</div>
+                        <img src="${movie.poster}" alt="${movie.title}" class="movie-poster">
+                        <div class="movie-overlay text-center">
+                            <h3 class="text-sm font-bold text-white truncate">${movie.title}</h3>
+                            <p class="text-xs text-red-500 mt-1">${movie.genre} • ${movie.country}</p>
+                        </div>
+                    </div>
+                `;
+            });
+        } catch (error) {
+            console.error('خطأ في الاتصال بالسيرفر:', error);
+        }
+    }
+
+    // تشغيل الجلب فور فتح الصفحة
+    fetchMovies();
+</script>
+</body>
+</html>
